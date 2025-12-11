@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Proof of Concept – Projectformulier met spraak</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .project-info {
+      background: #f0f4ff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .project-info p {
+      margin: 4px 0;
+    }
+
+    fieldset {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 16px 16px;
+      margin-bottom: 20px;
+    }
+
+    legend {
+      font-weight: 600;
+      padding: 0 4px;
+    }
+
+    label {
+      display: block;
+      margin: 4px 0;
+    }
+
+    .grondlaag-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto auto;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .grondlaag-row input[type="number"],
+    .grondlaag-row input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .grondlaag-row button {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .grondlaag-row button.speech-btn {
+      background: #e0f2fe;
+    }
+
+    .grondlaag-row button.speech-btn:hover {
+      background: #bae6fd;
+    }
+
+    .grondlaag-row button.speech-btn.listening {
+      background: #bfdbfe;
+      outline: 2px solid #60a5fa;
+    }
+
+    .grondlaag-row button.remove {
+      background: #ffe3e3;
+    }
+
+    .grondlaag-row button.remove:hover {
+      background: #ffcccc;
+    }
+
+    .help {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    #message {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      display: none;
+      font-size: 0.95rem;
+    }
+
+    #message.success {
+      display: block;
+      background: #dcfce7;
+      border: 1px solid #22c55e;
+      color: #166534;
+    }
+
+    #message.error {
+      display: block;
+      background: #fee2e2;
+      border: 1px solid #ef4444;
+      color: #991b1b;
+    }
+
+    .speech-note {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Projectformulier – Proof of Concept met spraak</h1>
+
+    <!-- Hard-coded projectgegevens -->
+    <section class="project-info">
+      <h2>Projectgegevens</h2>
+      <p><strong>Projectnaam:</strong> Voorbeeldproject Grondonderzoek</p>
+      <p><strong>Adres:</strong> Damplein 1, 1000 Brussel</p>
+      <p><strong>Projectnummer:</strong> PRJ-2025-001</p>
+    </section>
+
+    <form id="poc-form">
+      <!-- Radiobutton vraag -->
+      <fieldset>
+        <legend>Type onderzoek</legend>
+        <label>
+          <input type="radio" name="onderzoek_type" value="vooronderzoek" required />
+          Vooronderzoek
+        </label>
+        <label>
+          <input type="radio" name="onderzoek_type" value="uitgebreid" />
+          Uitgebreid onderzoek
+        </label>
+        <label>
+          <input type="radio" name="onderzoek_type" value="nazorg" />
+          Nazorg / opvolging
+        </label>
+      </fieldset>
+
+      <!-- Grondlagen vraag -->
+      <fieldset id="grondlagen-section">
+        <legend>Grondlagen</legend>
+        <p class="help">
+          Voeg per grondlaag een diepte en een korte omschrijving toe. Je kunt zoveel grondlagen
+          toevoegen als nodig.
+        </p>
+        <p class="speech-note">
+          Tip: klik op 🎤 om de omschrijving in te spreken (werkt het best in Chrome of Edge).
+        </p>
+        <div id="grondlagen-list">
+          <!-- Dynamische rijen komen hier -->
+        </div>
+        <button type="button" class="btn btn-secondary" id="add-layer-btn">
+          + Grondlaag toevoegen
+        </button>
+      </fieldset>
+
+      <div id="message"></div>
+
+      <button type="submit" class="btn btn-primary">Opslaan</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const grondlagenList = document.getElementById("grondlagen-list");
+      const addLayerBtn = document.getElementById("add-layer-btn");
+      const form = document.getElementById("poc-form");
+      const messageBox = document.getElementById("message");
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+      const speechSupported = !!SpeechRecognition;
+
+      function showMessage(text, type = "success") {
+        messageBox.textContent = text;
+        messageBox.className = "";
+        messageBox.id = "message";
+        messageBox.classList.add(type);
+        messageBox.style.display = "block";
+      }
+
+      function clearMessage() {
+        messageBox.style.display = "none";
+        messageBox.textContent = "";
+        messageBox.className = "";
+        messageBox.id = "message";
+      }
+
+      function createGrondlaagRow() {
+        const row = document.createElement("div");
+        row.className = "grondlaag-row";
+
+        const depthInput = document.createElement("input");
+        depthInput.type = "number";
+        depthInput.name = "diepte";
+        depthInput.placeholder = "Diepte (m)";
+        depthInput.step = "0.1";
+        depthInput.min = "0";
+
+        const descInput = document.createElement("input");
+        descInput.type = "text";
+        descInput.name = "omschrijving";
+        descInput.placeholder = "Omschrijving grondlaag";
+
+        const speechBtn = document.createElement("button");
+        speechBtn.type = "button";
+        speechBtn.textContent = "🎤";
+        speechBtn.title = "Dicteer omschrijving";
+        speechBtn.className = "speech-btn";
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.textContent = "×";
+        removeBtn.title = "Verwijder grondlaag";
+        removeBtn.className = "remove";
+
+        // Spraakknop functionaliteit
+        speechBtn.addEventListener("click", () => {
+          if (!speechSupported) {
+            alert("Spraakherkenning wordt niet ondersteund in deze browser. Probeer Chrome of Edge.");
+            return;
+          }
+
+          const recognition = new SpeechRecognition();
+          recognition.lang = "nl-BE"; // eventueel "nl-NL"
+          recognition.interimResults = false;
+          recognition.maxAlternatives = 1;
+
+          recognition.onstart = () => {
+            speechBtn.classList.add("listening");
+            speechBtn.textContent = "🎙";
+          };
+
+          recognition.onend = () => {
+            speechBtn.classList.remove("listening");
+            speechBtn.textContent = "🎤";
+          };
+
+          recognition.onerror = (event) => {
+            console.error("Speech error", event.error);
+            alert("Er ging iets mis met spraakherkenning: " + event.error);
+          };
+
+          recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            if (descInput.value) {
+              descInput.value += " " + transcript;
+            } else {
+              descInput.value = transcript;
+            }
+          };
+
+          recognition.start();
+        });
+
+        // Verwijderknop
+        removeBtn.addEventListener("click", () => {
+          grondlagenList.removeChild(row);
+          if (grondlagenList.children.length === 0) {
+            addGrondlaag();
+          }
+        });
+
+        row.appendChild(depthInput);
+        row.appendChild(descInput);
+        row.appendChild(speechBtn);
+        row.appendChild(removeBtn);
+
+        return row;
+      }
+
+      function addGrondlaag() {
+        const row = createGrondlaagRow();
+        grondlagenList.appendChild(row);
+      }
+
+      // Start met één lege grondlaag
+      addGrondlaag();
+
+      addLayerBtn.addEventListener("click", function () {
+        addGrondlaag();
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        clearMessage();
+
+        const selectedType = form.querySelector("input[name='onderzoek_type']:checked");
+        if (!selectedType) {
+          showMessage("Kies een type onderzoek.", "error");
+          return;
+        }
+
+        const layers = [];
+        const rows = grondlagenList.querySelectorAll(".grondlaag-row");
+        rows.forEach((row) => {
+          const depth = row.querySelector("input[name='diepte']").value;
+          const desc = row.querySelector("input[name='omschrijving']").value;
+
+          if (depth || desc) {
+            layers.push({ diepte: depth, omschrijving: desc });
+          }
+        });
+
+        if (layers.length === 0) {
+          showMessage("Voeg minstens één grondlaag in.", "error");
+          return;
+        }
+
+        // "Opslaan" – hier enkel loggen naar de console als proof of concept
+        const payload = {
+          project: {
+            naam: "Voorbeeldproject Grondonderzoek",
+            adres: "Damplein 1, 1000 Brussel",
+            nummer: "PRJ-2025-001",
+          },
+          onderzoek_type: selectedType.value,
+          grondlagen: layers,
+        };
+
+        console.log("Formulier-data (niet echt opgeslagen, alleen PoC):", payload);
+
+        showMessage("Formulier succesvol opgeslagen (PoC – niets wordt echt bewaard).", "success");
+      });
+    });
+  </script>
+</body>
+</html>
