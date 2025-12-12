@@ -244,6 +244,26 @@
 
     .btn-secondary:hover { background: #e8eef6; }
 
+    .coord-row {
+  display: grid;
+  grid-template-columns: 120px 120px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.coord-row input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* mobiel: netjes onder elkaar */
+@media (max-width: 600px) {
+  .coord-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
     /* ===== Messages ===== */
     #message {
       margin-bottom: 16px;
@@ -291,7 +311,7 @@
         </div>
 
         <div class="badge">
-          <span class="badge-label">Project</span>
+          <span class="badge-label">Projectnr.</span>
           <span class="badge-value" id="badgeLogicId">—</span>
         </div>
       </div>
@@ -300,9 +320,8 @@
     <!-- Projectgegevens -->
     <section class="project-info">
       <h2>Projectgegevens</h2>
-      <p><strong>LogicID:</strong> <span id="logicId">—</span></p>
+      <p><strong>Projectnummer:</strong> <span id="logicId">—</span></p>
       <p><strong>Adres:</strong> <span id="adres">—</span></p>
-      <p><strong>Projectnummer:</strong> <span id="projectNummer">—</span></p>
     </section>
 
     <form id="poc-form">
@@ -329,14 +348,14 @@
         <legend>Locatie</legend>
         <p class="help">Klik om je huidige GPS-locatie vast te leggen.</p>
 
-        <div class="grondlaag-row" style="grid-template-columns: 1fr auto;">
-          <input type="text" id="lat" placeholder="Latitude" readonly />
-          <button type="button" class="btn btn-secondary" id="btnLocatie">📍 Neem mijn locatie</button>
-        </div>
+        <div class="coord-row">
+  <input type="text" id="lat" placeholder="Lat" readonly />
+  <input type="text" id="lon" placeholder="Lon" readonly />
+  <button type="button" class="btn btn-secondary" id="btnLocatie">
+    📍 Mijn locatie
+  </button>
+</div>
 
-        <div class="grondlaag-row" style="grid-template-columns: 1fr;">
-          <input type="text" id="lon" placeholder="Longitude" readonly />
-        </div>
       </fieldset>
 
       <div id="message"></div>
@@ -585,3 +604,4 @@
   </script>
 </body>
 </html>
+
