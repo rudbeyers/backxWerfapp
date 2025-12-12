@@ -166,6 +166,86 @@
       color: #075985;
     }
 
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #eee;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+
+.app-title {
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.app-subtitle {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f0f4ff;
+  border: 1px solid #dbeafe;
+}
+
+.badge-label {
+  font-size: 0.75rem;
+  color: #334155;
+}
+
+.badge-value {
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+/* mobiel */
+@media (max-width: 600px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .badge {
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+    
     /* Mobiel */
     @media (max-width: 600px) {
       body { padding: 10px; }
@@ -180,7 +260,20 @@
 
 <body>
   <div class="container">
-    <h1>Werfapp – Grondonderzoek</h1>
+    <header class="topbar">
+  <div class="brand">
+    <img class="logo" src="./assets/logo.png" alt="Logo klant">
+    <div class="titles">
+      <div class="app-title">WerfForm</div>
+      <div class="app-subtitle">Sondes</div>
+    </div>
+  </div>
+
+  <div class="badge">
+    <span class="badge-label">Project</span>
+    <span class="badge-value" id="badgeLogicId">—</span>
+  </div>
+</header>
 
     <!-- Projectgegevens -->
     <section class="project-info">
@@ -466,3 +559,4 @@
   </script>
 </body>
 </html>
+
