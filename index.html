@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="./manifest.json" />
   <title>Werfapp – Projectformulier</title>
 
   <style>
@@ -239,6 +240,11 @@
     const NETLIFY_BASE_URL = "https://apiding.netlify.app";
 
     document.addEventListener("DOMContentLoaded", () => {
+      // Service worker (offline app shell)
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(console.error);
+      }
+
       const grondlagenList = document.getElementById("grondlagen-list");
       const addLayerBtn = document.getElementById("add-layer-btn");
       const form = document.getElementById("poc-form");
@@ -279,9 +285,24 @@
         return `${a.addressLine1}, ${a.postalCode} ${a.city}, ${a.country}`;
       }
 
-      async function loadProjectInfo() {
-        showMessage("Projectgegevens laden…", "info");
+      function cacheKey(projectnummer) {
+        return `projectcache:${projectnummer}`;
+      }
 
+      function applyProjectData(projectnummer, data, sourceLabel) {
+        logicIdEl.textContent = data.logicId ?? "—";
+        adresEl.textContent = formatAdres(data.siteAddress);
+        projectNummerEl.textContent = projectnummer;
+
+        if (sourceLabel) {
+          showMessage(sourceLabel, "info");
+          // laat de melding even staan; gebruiker ziet dat het cached is
+        } else {
+          clearMessage();
+        }
+      }
+
+      async function loadProjectInfo({ allowCache = true } = {}) {
         const projectnummer = getProjectnummer();
         if (!projectnummer) {
           showMessage("Geen projectnummer in de URL (?projectnummer=8).", "error");
@@ -290,19 +311,53 @@
 
         projectNummerEl.textContent = projectnummer;
 
+        // Offline? toon cached data indien beschikbaar
+        if (!navigator.onLine) {
+          if (allowCache) {
+            const cached = localStorage.getItem(cacheKey(projectnummer));
+            if (cached) {
+              try {
+                const data = JSON.parse(cached);
+                applyProjectData(projectnummer, data, "Offline: laatste gekende projectgegevens getoond.");
+                return;
+              } catch (_) {}
+            }
+          }
+          showMessage("Je bent offline. Projectgegevens kunnen niet geladen worden.", "error");
+          return;
+        }
+
+        showMessage("Projectgegevens laden…", "info");
+
         try {
           const res = await fetch(
             `${NETLIFY_BASE_URL}/.netlify/functions/project?projectnummer=${encodeURIComponent(projectnummer)}`
           );
-          if (!res.ok) throw new Error("API fout");
+          if (!res.ok) throw new Error(`API fout: ${res.status}`);
 
           const data = await res.json();
-          logicIdEl.textContent = data.logicId ?? "—";
-          adresEl.textContent = formatAdres(data.siteAddress);
 
-          clearMessage();
+          // Cache voor offline gebruik
+          try {
+            localStorage.setItem(cacheKey(projectnummer), JSON.stringify(data));
+          } catch (_) {}
+
+          applyProjectData(projectnummer, data, null);
         } catch (e) {
           console.error(e);
+
+          // Fallback naar cache als online call faalt
+          if (allowCache) {
+            const cached = localStorage.getItem(cacheKey(projectnummer));
+            if (cached) {
+              try {
+                const data = JSON.parse(cached);
+                applyProjectData(projectnummer, data, "Kon niet laden; laatste gekende projectgegevens getoond.");
+                return;
+              } catch (_) {}
+            }
+          }
+
           showMessage("Kon projectgegevens niet ophalen.", "error");
         }
       }
@@ -383,9 +438,25 @@
         );
       };
 
+      // Online/offline gedrag (1)
+      function updateOnlineStatus() {
+        if (navigator.onLine) {
+          // Probeer projectinfo opnieuw zodra we terug online zijn
+          loadProjectInfo({ allowCache: true });
+        } else {
+          // Toon melding maar laat cached projectdata toe
+          loadProjectInfo({ allowCache: true });
+        }
+      }
+
+      window.addEventListener("online", updateOnlineStatus);
+      window.addEventListener("offline", updateOnlineStatus);
+
+      // Init
       addLayerBtn.onclick = addGrondlaag;
       addGrondlaag();
-      loadProjectInfo();
+
+      updateOnlineStatus();
 
       form.onsubmit = e => {
         e.preventDefault();
