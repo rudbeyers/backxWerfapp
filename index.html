@@ -7,19 +7,30 @@
   <title>Werfapp – Projectformulier</title>
 
   <style>
+    :root{
+      --brand: #E30613;
+      --brand-weak: rgba(227, 6, 19, 0.10);
+      --ink: #0f172a;
+      --muted: #475569;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --border: #e5e7eb;
+    }
+
     * { box-sizing: border-box; }
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
+      background: var(--bg);
       margin: 0;
       padding: 20px;
+      color: var(--ink);
     }
 
     .container {
       max-width: 900px;
       margin: 0 auto;
-      background: #ffffff;
+      background: var(--card);
       padding: 24px;
       border-radius: 14px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -31,11 +42,11 @@
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       padding: 14px 16px;
       border-radius: 14px;
-      background: #ffffff;
-      border: 1px solid #eee;
+      background: #fff;
+      border: 1px solid var(--border);
     }
 
     .brand {
@@ -50,8 +61,8 @@
       height: 48px;
       object-fit: contain;
       border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid #eef2f7;
+      background: #fff;
+      border: 1px solid var(--border);
       padding: 4px;
     }
 
@@ -63,13 +74,22 @@
     }
 
     .app-title {
-      font-weight: 800;
+      font-weight: 900;
       font-size: 1.25rem;
+      letter-spacing: 0.2px;
     }
 
     .app-subtitle {
       font-size: 0.95rem;
-      color: #475569;
+      color: var(--muted);
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .badge {
@@ -79,20 +99,44 @@
       gap: 2px;
       padding: 8px 12px;
       border-radius: 12px;
-      background: #f0f4ff;
-      border: 1px solid #dbeafe;
+      background: var(--brand-weak);
+      border: 1px solid rgba(227, 6, 19, 0.25);
+      min-width: 92px;
     }
 
     .badge-label {
       font-size: 0.75rem;
-      color: #334155;
+      color: #7f1d1d;
     }
 
     .badge-value {
-      font-weight: 800;
+      font-weight: 900;
       font-size: 0.95rem;
       letter-spacing: 0.4px;
+      color: #7f1d1d;
     }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #16a34a; /* default online */
+    }
+
+    .status-pill.offline .dot { background: #ef4444; }
+    .status-pill.offline { border-color: rgba(239, 68, 68, 0.35); }
 
     /* ===== Project info ===== */
     .project-info {
@@ -100,7 +144,7 @@
       border-radius: 10px;
       padding: 12px 16px;
       margin-bottom: 20px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--border);
     }
 
     .project-info h2 {
@@ -108,28 +152,19 @@
       font-size: 1.05rem;
     }
 
-    .project-info p {
-      margin: 4px 0;
-    }
+    .project-info p { margin: 4px 0; }
 
     fieldset {
-      border: 1px solid #ddd;
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: 12px 16px 16px;
       margin-bottom: 20px;
     }
 
-    legend {
-      font-weight: 600;
-      padding: 0 6px;
-    }
+    legend { font-weight: 700; padding: 0 6px; }
+    label { display: block; margin: 4px 0; }
 
-    label {
-      display: block;
-      margin: 4px 0;
-    }
-
-    /* ===== Grondlagen ===== */
+    /* ===== Grondlagen / rows ===== */
     .grondlaag-row {
       display: grid;
       grid-template-columns: 1fr 2fr auto auto;
@@ -140,42 +175,44 @@
 
     .grondlaag-row input {
       width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+      background: #fff;
+    }
+
+    .grondlaag-row input:focus {
+      border-color: rgba(227, 6, 19, 0.55);
+      box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.14);
     }
 
     .grondlaag-row button {
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: none;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
       cursor: pointer;
       font-size: 0.95rem;
     }
 
-    .speech-btn { background: #e0f2fe; }
+    .speech-btn { background: #e0f2fe; border-color: #bae6fd; }
     .speech-btn.listening {
+      outline: 2px solid rgba(227, 6, 19, 0.35);
       background: #bfdbfe;
-      outline: 2px solid #60a5fa;
     }
 
-    .remove {
-      background: #ffe3e3;
-    }
-
-    .remove:hover {
-      background: #ffcccc;
-    }
+    .remove { background: #ffe3e3; border-color: #fecaca; }
+    .remove:hover { background: #ffcccc; }
 
     .help {
       font-size: 0.9rem;
-      color: #555;
+      color: #475569;
       margin: 0 0 8px;
     }
 
     .speech-note {
       font-size: 0.85rem;
-      color: #666;
+      color: #64748b;
       margin: -4px 0 8px;
     }
 
@@ -183,66 +220,53 @@
     .btn {
       display: inline-block;
       padding: 10px 14px;
-      border-radius: 10px;
-      border: none;
+      border-radius: 12px;
+      border: 1px solid transparent;
       cursor: pointer;
       font-size: 1rem;
     }
 
     .btn-primary {
-      background: #2563eb;
+      background: var(--brand);
+      border-color: rgba(0,0,0,0.08);
       color: white;
+      font-weight: 700;
     }
 
+    .btn-primary:hover { filter: brightness(0.96); }
+
     .btn-secondary {
-      background: #e5e7eb;
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #0f172a;
+      font-weight: 600;
     }
+
+    .btn-secondary:hover { background: #e8eef6; }
 
     /* ===== Messages ===== */
     #message {
       margin-bottom: 16px;
       padding: 10px 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       display: none;
       font-size: 0.95rem;
+      border: 1px solid transparent;
     }
 
-    #message.success {
-      display: block;
-      background: #dcfce7;
-      border: 1px solid #22c55e;
-      color: #166534;
-    }
-
-    #message.error {
-      display: block;
-      background: #fee2e2;
-      border: 1px solid #ef4444;
-      color: #991b1b;
-    }
-
-    #message.info {
-      display: block;
-      background: #e0f2fe;
-      border: 1px solid #38bdf8;
-      color: #075985;
-    }
+    #message.success { display: block; background: #dcfce7; border-color: #22c55e; color: #166534; }
+    #message.error   { display: block; background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+    #message.info    { display: block; background: #fff; border-color: rgba(227, 6, 19, 0.25); color: #7f1d1d; }
 
     /* ===== Mobile ===== */
     @media (max-width: 600px) {
       body { padding: 10px; }
       .container { padding: 16px; }
-      .topbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .badge {
-        align-items: flex-start;
-        width: 100%;
-      }
+      .topbar { flex-direction: column; align-items: stretch; }
+      .top-right { justify-content: flex-start; }
+      .badge { align-items: flex-start; }
       .grondlaag-row { grid-template-columns: 1fr; }
-      .grondlaag-row button,
-      .btn { width: 100%; }
+      .grondlaag-row button, .btn { width: 100%; }
     }
   </style>
 </head>
@@ -253,16 +277,23 @@
     <!-- Header -->
     <header class="topbar">
       <div class="brand">
-        <img src="./assets/logo.png" alt="Logo klant" class="logo">
+        <img src="./assets/logo.png" alt="Logo klant" class="logo" />
         <div class="titles">
           <div class="app-title">Werfapp</div>
           <div class="app-subtitle">Grondonderzoek</div>
         </div>
       </div>
 
-      <div class="badge">
-        <span class="badge-label">Project</span>
-        <span class="badge-value" id="badgeLogicId">—</span>
+      <div class="top-right">
+        <div class="status-pill" id="netStatus">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="netText">Online</span>
+        </div>
+
+        <div class="badge">
+          <span class="badge-label">Project</span>
+          <span class="badge-value" id="badgeLogicId">—</span>
+        </div>
       </div>
     </header>
 
@@ -273,9 +304,6 @@
       <p><strong>Adres:</strong> <span id="adres">—</span></p>
       <p><strong>Projectnummer:</strong> <span id="projectNummer">—</span></p>
     </section>
-
-    <!-- (rest van je formulier blijft identiek functioneel) -->
-    <!-- … niets aan de logica hieronder gewijzigd … -->
 
     <form id="poc-form">
       <fieldset>
@@ -321,20 +349,238 @@
     const NETLIFY_BASE_URL = "https://apiding.netlify.app";
 
     document.addEventListener("DOMContentLoaded", () => {
+      // Service worker (offline app shell)
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(console.error);
+      }
+
+      const grondlagenList = document.getElementById("grondlagen-list");
+      const addLayerBtn = document.getElementById("add-layer-btn");
+      const form = document.getElementById("poc-form");
+      const messageBox = document.getElementById("message");
+
       const logicIdEl = document.getElementById("logicId");
       const badgeLogicId = document.getElementById("badgeLogicId");
       const adresEl = document.getElementById("adres");
       const projectNummerEl = document.getElementById("projectNummer");
 
-      // → wanneer projectinfo geladen wordt:
-      // zorg dat badge meeloopt
-      const originalSet = logicIdEl.textContent;
-      Object.defineProperty(logicIdEl, "textContent", {
-        set(value) {
-          badgeLogicId.textContent = value;
-          HTMLElement.prototype.__lookupSetter__("textContent").call(this, value);
+      const latEl = document.getElementById("lat");
+      const lonEl = document.getElementById("lon");
+      const btnLocatie = document.getElementById("btnLocatie");
+
+      const netStatus = document.getElementById("netStatus");
+      const netText = document.getElementById("netText");
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+
+      function showMessage(text, type) {
+        messageBox.textContent = text;
+        messageBox.className = type;
+        messageBox.style.display = "block";
+      }
+
+      function clearMessage() {
+        messageBox.style.display = "none";
+      }
+
+      function setNetworkBadge() {
+        const online = navigator.onLine;
+        netText.textContent = online ? "Online" : "Offline";
+        netStatus.classList.toggle("offline", !online);
+      }
+
+      function getProjectnummer() {
+        const url = new URL(window.location.href);
+        const q = url.searchParams.get("projectnummer");
+        if (q) return q;
+
+        const hash = (window.location.hash || "").replace(/^#/, "");
+        if (!hash) return null;
+        return new URLSearchParams(hash).get("projectnummer");
+      }
+
+      function formatAdres(a) {
+        if (!a) return "—";
+        const line1 = a.addressLine1 || "";
+        const pc = a.postalCode || "";
+        const city = a.city || "";
+        const country = a.country || "";
+        return [line1, [pc, city].filter(Boolean).join(" "), country].filter(Boolean).join(", ");
+      }
+
+      function cacheKey(projectnummer) {
+        return `projectcache:${projectnummer}`;
+      }
+
+      function applyProjectData(projectnummer, data, sourceLabel) {
+        const logic = data.logicId ?? "—";
+        logicIdEl.textContent = logic;
+        badgeLogicId.textContent = logic;
+        adresEl.textContent = formatAdres(data.siteAddress);
+        projectNummerEl.textContent = projectnummer;
+
+        if (sourceLabel) {
+          showMessage(sourceLabel, "info");
+        } else {
+          clearMessage();
         }
-      });
+      }
+
+      async function loadProjectInfo({ allowCache = true } = {}) {
+        const projectnummer = getProjectnummer();
+        if (!projectnummer) {
+          showMessage("Geen projectnummer in de URL (?projectnummer=8).", "error");
+          return;
+        }
+
+        projectNummerEl.textContent = projectnummer;
+
+        // Offline? toon cached data indien beschikbaar
+        if (!navigator.onLine) {
+          if (allowCache) {
+            const cached = localStorage.getItem(cacheKey(projectnummer));
+            if (cached) {
+              try {
+                const data = JSON.parse(cached);
+                applyProjectData(projectnummer, data, "Offline: laatste gekende projectgegevens getoond.");
+                return;
+              } catch (_) {}
+            }
+          }
+          showMessage("Je bent offline. Projectgegevens kunnen niet geladen worden.", "error");
+          return;
+        }
+
+        showMessage("Projectgegevens laden…", "info");
+
+        try {
+          const res = await fetch(
+            `${NETLIFY_BASE_URL}/.netlify/functions/project?projectnummer=${encodeURIComponent(projectnummer)}`
+          );
+          if (!res.ok) throw new Error(`API fout: ${res.status}`);
+
+          const data = await res.json();
+
+          // Cache voor offline gebruik
+          try {
+            localStorage.setItem(cacheKey(projectnummer), JSON.stringify(data));
+          } catch (_) {}
+
+          applyProjectData(projectnummer, data, null);
+        } catch (e) {
+          console.error(e);
+
+          // Fallback naar cache als online call faalt
+          if (allowCache) {
+            const cached = localStorage.getItem(cacheKey(projectnummer));
+            if (cached) {
+              try {
+                const data = JSON.parse(cached);
+                applyProjectData(projectnummer, data, "Kon niet laden; laatste gekende projectgegevens getoond.");
+                return;
+              } catch (_) {}
+            }
+          }
+
+          showMessage("Kon projectgegevens niet ophalen.", "error");
+        }
+      }
+
+      function createGrondlaagRow() {
+        const row = document.createElement("div");
+        row.className = "grondlaag-row";
+
+        const depth = document.createElement("input");
+        depth.type = "number";
+        depth.placeholder = "Diepte (m)";
+        depth.step = "0.1";
+
+        const desc = document.createElement("input");
+        desc.type = "text";
+        desc.placeholder = "Omschrijving";
+
+        const speechBtn = document.createElement("button");
+        speechBtn.type = "button";
+        speechBtn.textContent = "🎤";
+        speechBtn.className = "speech-btn";
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.textContent = "×";
+        removeBtn.className = "remove";
+
+        speechBtn.onclick = () => {
+          if (!SpeechRecognition) {
+            alert("Spraakherkenning niet ondersteund.");
+            return;
+          }
+
+          const rec = new SpeechRecognition();
+          rec.lang = "nl-BE";
+
+          rec.onstart = () => speechBtn.classList.add("listening");
+          rec.onend = () => speechBtn.classList.remove("listening");
+          rec.onresult = e => {
+            desc.value += (desc.value ? " " : "") + e.results[0][0].transcript;
+          };
+
+          rec.start();
+        };
+
+        removeBtn.onclick = () => {
+          row.remove();
+          if (!grondlagenList.children.length) addGrondlaag();
+        };
+
+        row.append(depth, desc, speechBtn, removeBtn);
+        return row;
+      }
+
+      function addGrondlaag() {
+        grondlagenList.appendChild(createGrondlaagRow());
+      }
+
+      btnLocatie.onclick = () => {
+        if (!navigator.geolocation) {
+          showMessage("Geolocation niet ondersteund in deze browser.", "error");
+          return;
+        }
+
+        showMessage("Locatie ophalen…", "info");
+
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            latEl.value = pos.coords.latitude.toFixed(6);
+            lonEl.value = pos.coords.longitude.toFixed(6);
+            clearMessage();
+          },
+          err => {
+            console.error(err);
+            showMessage("Kon locatie niet ophalen.", "error");
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      };
+
+      function updateOnlineStatus() {
+        setNetworkBadge();
+        loadProjectInfo({ allowCache: true });
+      }
+
+      window.addEventListener("online", updateOnlineStatus);
+      window.addEventListener("offline", updateOnlineStatus);
+
+      // Init
+      addLayerBtn.onclick = addGrondlaag;
+      addGrondlaag();
+
+      setNetworkBadge();
+      updateOnlineStatus();
+
+      form.onsubmit = e => {
+        e.preventDefault();
+        showMessage("Formulier opgeslagen (PoC).", "success");
+      };
     });
   </script>
 </body>
