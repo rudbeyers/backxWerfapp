@@ -63,7 +63,7 @@
       margin: 4px 0;
     }
 
-    /* Grondlagen + rijen */
+    /* Grondlagen */
     .grondlaag-row {
       display: grid;
       grid-template-columns: 1fr 2fr auto auto;
@@ -133,11 +133,6 @@
 
     .btn-secondary {
       background: #e5e7eb;
-    }
-
-    .btn-secondary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
     }
 
     /* Messages */
@@ -214,26 +209,21 @@
         </button>
       </fieldset>
 
-      <!-- NIEUW: Locatie -->
+      <!-- Locatie -->
       <fieldset>
         <legend>Locatie</legend>
         <p class="help">Klik om je huidige GPS-locatie vast te leggen.</p>
 
         <div class="grondlaag-row" style="grid-template-columns: 1fr auto;">
-          <input type="text" id="locatieStatus" value="Nog geen locatie opgenomen." readonly />
-          <button type="button" class="btn btn-secondary" id="btnLocatie">📍 Neem mijn locatie</button>
-        </div>
-
-        <div class="grondlaag-row">
           <input type="text" id="lat" placeholder="Latitude" readonly />
-          <input type="text" id="lon" placeholder="Longitude" readonly />
-          <button type="button" class="btn btn-secondary" id="btnLive">▶ Live</button>
-          <button type="button" class="btn btn-secondary" id="btnStop" disabled>■ Stop</button>
+          <button type="button" class="btn btn-secondary" id="btnLocatie">
+            📍 Neem mijn locatie
+          </button>
         </div>
 
-        <p class="speech-note">
-          Nauwkeurigheid: <span id="acc">—</span> meter • Tijd: <span id="locTime">—</span>
-        </p>
+        <div class="grondlaag-row" style="grid-template-columns: 1fr;">
+          <input type="text" id="lon" placeholder="Longitude" readonly />
+        </div>
       </fieldset>
 
       <div id="message"></div>
@@ -248,9 +238,6 @@
      **************************************************/
     const NETLIFY_BASE_URL = "https://apiding.netlify.app";
 
-    /**************************************************
-     * INIT
-     **************************************************/
     document.addEventListener("DOMContentLoaded", () => {
       const grondlagenList = document.getElementById("grondlagen-list");
       const addLayerBtn = document.getElementById("add-layer-btn");
@@ -261,19 +248,11 @@
       const adresEl = document.getElementById("adres");
       const projectNummerEl = document.getElementById("projectNummer");
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-
-      // Locatie elementen
-      let watchId = null;
-      const btnLocatie = document.getElementById("btnLocatie");
-      const btnLive = document.getElementById("btnLive");
-      const btnStop = document.getElementById("btnStop");
-
-      const locatieStatus = document.getElementById("locatieStatus");
       const latEl = document.getElementById("lat");
       const lonEl = document.getElementById("lon");
-      const accEl = document.getElementById("acc");
-      const locTimeEl = document.getElementById("locTime");
+      const btnLocatie = document.getElementById("btnLocatie");
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
       function showMessage(text, type) {
         messageBox.textContent = text;
@@ -286,16 +265,13 @@
       }
 
       function getProjectnummer() {
-        // 1) Normale query: ?projectnummer=8
         const url = new URL(window.location.href);
         const q = url.searchParams.get("projectnummer");
         if (q) return q;
 
-        // 2) Hash-variant: #projectnummer=8 (of #x=1&projectnummer=8)
         const hash = (window.location.hash || "").replace(/^#/, "");
         if (!hash) return null;
-        const hashParams = new URLSearchParams(hash);
-        return hashParams.get("projectnummer");
+        return new URLSearchParams(hash).get("projectnummer");
       }
 
       function formatAdres(a) {
@@ -318,11 +294,9 @@
           const res = await fetch(
             `${NETLIFY_BASE_URL}/.netlify/functions/project?projectnummer=${encodeURIComponent(projectnummer)}`
           );
-
           if (!res.ok) throw new Error("API fout");
 
           const data = await res.json();
-
           logicIdEl.textContent = data.logicId ?? "—";
           adresEl.textContent = formatAdres(data.siteAddress);
 
@@ -387,90 +361,34 @@
         grondlagenList.appendChild(createGrondlaagRow());
       }
 
-      // --- Locatie helpers ---
-      function ensureGeoSupported() {
-        if (!navigator.geolocation) {
-          locatieStatus.value = "Geolocation niet ondersteund in deze browser.";
-          return false;
-        }
-        return true;
-      }
-
-      function setLocatie(pos) {
-        const { latitude, longitude, accuracy } = pos.coords;
-        latEl.value = Number(latitude).toFixed(6);
-        lonEl.value = Number(longitude).toFixed(6);
-        accEl.textContent = accuracy ? Math.round(accuracy) : "—";
-        locTimeEl.textContent = new Date(pos.timestamp).toLocaleString();
-        locatieStatus.value = watchId !== null ? "Live locatie actief ✅" : "Locatie opgenomen ✅";
-      }
-
-      function setLocatieError(err) {
-        console.error(err);
-        locatieStatus.value =
-          err.code === 1 ? "Locatie geweigerd (permission)." :
-          err.code === 2 ? "Locatie niet beschikbaar." :
-          err.code === 3 ? "Timeout bij locatie opvragen." :
-          "Onbekende locatie-fout.";
-      }
-
-      // Locatie knoppen
       btnLocatie.onclick = () => {
-        if (!ensureGeoSupported()) return;
-        locatieStatus.value = "Locatie opvragen…";
-        navigator.geolocation.getCurrentPosition(
-          setLocatie,
-          setLocatieError,
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      };
-
-      btnLive.onclick = () => {
-        if (!ensureGeoSupported()) return;
-        if (watchId !== null) return; // al bezig
-        locatieStatus.value = "Live locatie starten…";
-        btnStop.disabled = false;
-
-        watchId = navigator.geolocation.watchPosition(
-          setLocatie,
-          setLocatieError,
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      };
-
-      btnStop.onclick = () => {
-        if (watchId !== null) {
-          navigator.geolocation.clearWatch(watchId);
-          watchId = null;
+        if (!navigator.geolocation) {
+          showMessage("Geolocation niet ondersteund in deze browser.", "error");
+          return;
         }
-        btnStop.disabled = true;
-        locatieStatus.value = "Live locatie gestopt.";
+
+        showMessage("Locatie ophalen…", "info");
+
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            latEl.value = pos.coords.latitude.toFixed(6);
+            lonEl.value = pos.coords.longitude.toFixed(6);
+            clearMessage();
+          },
+          err => {
+            console.error(err);
+            showMessage("Kon locatie niet ophalen.", "error");
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
       };
 
-      // Init
       addLayerBtn.onclick = addGrondlaag;
       addGrondlaag();
       loadProjectInfo();
 
       form.onsubmit = e => {
         e.preventDefault();
-
-        // (PoC) Log data, incl. locatie
-        const payload = {
-          project: {
-            projectnummer: projectNummerEl.textContent,
-            logicId: logicIdEl.textContent,
-            adres: adresEl.textContent
-          },
-          locatie: {
-            lat: latEl.value || null,
-            lon: lonEl.value || null,
-            accuracy_m: accEl.textContent || null,
-            timestamp: locTimeEl.textContent || null
-          }
-        };
-
-        console.log("Formulier opgeslagen (PoC):", payload);
         showMessage("Formulier opgeslagen (PoC).", "success");
       };
     });
