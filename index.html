@@ -244,12 +244,29 @@
 
     .btn-secondary:hover { background: #e8eef6; }
 
-    .coord-row {
+    .coord-block {
   display: grid;
-  grid-template-columns: 120px 120px auto;
   gap: 8px;
-  align-items: center;
 }
+
+.coord-row {
+  display: grid;
+  grid-template-columns: 120px 120px;
+  gap: 8px;
+}
+
+.coord-row input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* mobiel */
+@media (max-width: 600px) {
+  .coord-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .coord-row input {
   text-align: right;
@@ -348,13 +365,17 @@
         <legend>Locatie</legend>
         <p class="help">Klik om je huidige GPS-locatie vast te leggen.</p>
 
-        <div class="coord-row">
-  <input type="text" id="lat" placeholder="Lat" readonly />
-  <input type="text" id="lon" placeholder="Lon" readonly />
+        <div class="coord-block">
   <button type="button" class="btn btn-secondary" id="btnLocatie">
-    📍 Mijn locatie
+    📍 Neem mijn locatie
   </button>
+
+  <div class="coord-row">
+    <input type="text" id="lat" placeholder="Lat" readonly />
+    <input type="text" id="lon" placeholder="Lon" readonly />
+  </div>
 </div>
+
 
       </fieldset>
 
@@ -604,4 +625,5 @@
   </script>
 </body>
 </html>
+
 
