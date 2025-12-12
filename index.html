@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="manifest" href="./manifest.json" />
-  <title>Werfapp – Projectformulier</title>
+  <title>WebForm Backx – Sondes</title>
 
   <style>
     :root{
@@ -297,8 +297,8 @@
       <div class="brand">
         <img src="./assets/logo.png" alt="Logo klant" class="logo" />
         <div class="titles">
-          <div class="app-title">Werfapp</div>
-          <div class="app-subtitle">Grondonderzoek</div>
+          <div class="app-title">WebForm Backx</div>
+          <div class="app-subtitle">Sondes</div>
         </div>
       </div>
 
@@ -327,16 +327,16 @@
 
     <form id="poc-form">
       <fieldset>
-        <legend>Type onderzoek</legend>
-        <label><input type="radio" name="onderzoek_type" value="vooronderzoek" required> Vooronderzoek</label>
-        <label><input type="radio" name="onderzoek_type" value="uitgebreid"> Uitgebreid</label>
-        <label><input type="radio" name="onderzoek_type" value="nazorg"> Nazorg</label>
+        <legend>Boormeester</legend>
+        <label><input type="radio" name="onderzoek_type" value="Jan" required> Jan</label>
+        <label><input type="radio" name="onderzoek_type" value="Piet"> Piet</label>
+        <label><input type="radio" name="onderzoek_type" value="Ludo"> Ludo</label>
       </fieldset>
 
       <fieldset>
         <legend>Grondlagen</legend>
         <p class="help">Voeg per grondlaag een diepte en omschrijving toe.</p>
-        <p class="speech-note">🎤 Klik op de microfoon om in te spreken (Chrome / Edge).</p>
+        <p class="speech-note">🎤 Klik op de microfoon om in te spreken.</p>
 
         <div id="grondlagen-list"></div>
 
@@ -350,7 +350,7 @@
         <p class="help">Klik om je huidige GPS-locatie vast te leggen.</p>
 
         <div class="coord-block">
-          <button type="button" class="btn btn-secondary" id="btnLocatie">📍 Neem mijn locatie</button>
+          <button type="button" class="btn btn-secondary" id="btnLocatie">📍 Mijn locatie</button>
 
           <div class="coord-row">
             <input type="text" id="lat" placeholder="Lat" readonly />
@@ -607,3 +607,4 @@
   </script>
 </body>
 </html>
+
